@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Ticker configuration
-TICKER_SVN_COMMITS_MINUTES=2
+TICKER_SVN_COMMITS_MINUTES=1
 TICKER_SVN_UP_MINUTES=32
 
 # SVN repo informations
@@ -14,7 +14,13 @@ GIT_REPOSITORY_URL="https://github.com/itadakimas/etna-2-restful.git"
 
 # And...action !
 echo -e "\n#### SVN BUTLER [ON] ####\n"
-# svn up
+
+
+
+echo -e "!!! SVN UP !!!\n"
+
+
+
 if [ -d $SVN_TMP_DIR ]; then
     echo -e "[DEBUG]\tRemoves old temporary directory"
     rm -rf $SVN_TMP_DIR
@@ -23,6 +29,16 @@ echo -e "[DEBUG]\tCreates temporary directory"
 mkdir $SVN_TMP_DIR && cd $SVN_TMP_DIR
 echo -e "[INFO]\tInitializes Git repository cloning\n"
 git clone $GIT_REPOSITORY_URL $GIT_REPOSITORY_DIR && cd $GIT_REPOSITORY_DIR
+
+
+
+echo -e "!!! SVN IGNORE STUFF !!!\n"
+
+
+
+GIT_FIRST_COMMIT=$(git rev-list $GIT_BRANCH_NAME | tail -1)
+GIT_LAST_COMMIT=$(git rev-list --reverse $GIT_BRANCH_NAME | tail -1)
+git checkout $GIT_FIRST_COMMIT
 echo -e "\n[INFO]\tTimer start !\n"
 TICKER_MINUTES=0
 TICKER_SECONDS=0
@@ -33,27 +49,16 @@ while true; do
     TICKER_SECONDS=$((TICKER_SECONDS + 1))
     SECONDS=$(( (TICKER_CURRENT_TIMESTAMP - TICKER_START_TIMESTAMP) ))
     MINUTES=$((SECONDS / 60))
-
     if ((MINUTES > TICKER_MINUTES)); then
         TICKER_MINUTES=$((TICKER_MINUTES + 1))
         TICKER_SECONDS=0
-
-        # if ((MINUTES > 0)); then
-
-            if !((MINUTES % TICKER_SVN_UP_MINUTES)); then
-
-                # svn up
-
-                echo "SVN UP !!!!"
-            fi
-            if !((MINUTES % TICKER_SVN_COMMITS_MINUTES)); then
-                for commit in $(git rev-list --reverse $GIT_BRANCH_NAME)
-                do
-                    echo "tour de boucle"
-                    echo $commit
-                done
-            fi
-        # fi
+        if !((MINUTES % TICKER_SVN_UP_MINUTES)); then
+            echo "!!! SVN UP !!!"
+        fi
+        if !((MINUTES % TICKER_SVN_COMMITS_MINUTES)); then
+            GIT_NEXT_COMMIT=$(git rev-list --topo-order HEAD..$GIT_LAST_COMMIT | tail -1)
+            git checkout $GIT_NEXT_COMMIT
+        fi
     fi
     echo -e "[DEBUG]\tActive from $TICKER_MINUTES minute(s) and $TICKER_SECONDS second(s)"
 done
