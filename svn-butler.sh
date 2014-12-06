@@ -14,13 +14,7 @@ GIT_REPOSITORY_URL="https://github.com/itadakimas/etna-2-restful.git"
 
 # And...action !
 echo -e "\n#### SVN BUTLER [ON] ####\n"
-
-
-
-echo -e "!!! SVN UP !!!\n"
-
-
-
+svn up
 if [ -d $SVN_TMP_DIR ]; then
     echo -e "[DEBUG]\tRemoves old temporary directory"
     rm -rf $SVN_TMP_DIR
@@ -29,13 +23,6 @@ echo -e "[DEBUG]\tCreates temporary directory"
 mkdir $SVN_TMP_DIR && cd $SVN_TMP_DIR
 echo -e "[INFO]\tInitializes Git repository cloning\n"
 git clone $GIT_REPOSITORY_URL $GIT_REPOSITORY_DIR && cd $GIT_REPOSITORY_DIR
-
-
-
-echo -e "!!! SVN IGNORE STUFF !!!\n"
-
-
-
 GIT_FIRST_COMMIT=$(git rev-list $GIT_BRANCH_NAME | tail -1)
 GIT_LAST_COMMIT=$(git rev-list --reverse $GIT_BRANCH_NAME | tail -1)
 git checkout $GIT_FIRST_COMMIT
@@ -53,10 +40,12 @@ while true; do
         TICKER_MINUTES=$((TICKER_MINUTES + 1))
         TICKER_SECONDS=0
         if !((MINUTES % TICKER_SVN_UP_MINUTES)); then
-            echo "!!! SVN UP !!!"
+            svn up
         fi
         if !((MINUTES % TICKER_SVN_COMMITS_MINUTES)); then
             GIT_NEXT_COMMIT=$(git rev-list --topo-order HEAD..$GIT_LAST_COMMIT | tail -1)
+            GIT_NEXT_COMMIT_MSG=$(git rev-list --topo-order --pretty=oneline --abbrev-commit HEAD..$GIT_LAST_COMMIT | tail -1 | cut -d" " -f 2-)
+            echo "$GIT_NEXT_COMMIT: $GIT_NEXT_COMMIT_MSG"
             git checkout $GIT_NEXT_COMMIT
         fi
     fi
