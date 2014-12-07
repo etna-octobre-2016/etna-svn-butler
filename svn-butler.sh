@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 # Ticker configuration
-TICKER_SVN_COMMITS_MINUTES=11
-TICKER_SVN_UP_MINUTES=32
+TICKER_SVN_COMMITS_MINUTES_MIN=10
+TICKER_SVN_COMMITS_MINUTES_MAX=15
+TICKER_SVN_UP_MINUTES_MIN=30
+TICKER_SVN_UP_MINUTES_MAX=40
 
 # SVN repo informations
 SVN_TMP_DIR="TMP"
@@ -36,6 +38,8 @@ fi
 svn commit -m "first commit"
 cd "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
 echo -e "\n[INFO]\tTimer start !\n"
+TICKER_SVN_UP_MINUTES=$(jot -r 1 $TICKER_SVN_UP_MINUTES_MIN $TICKER_SVN_UP_MINUTES_MAX)
+TICKER_SVN_COMMITS_MINUTES=$(jot -r 1 $TICKER_SVN_COMMITS_MINUTES_MIN $TICKER_SVN_COMMITS_MINUTES_MAX)
 TICKER_MINUTES=0
 TICKER_SECONDS=0
 TICKER_START_TIMESTAMP=$(date +%s)
@@ -50,6 +54,7 @@ while true; do
         TICKER_SECONDS=0
         if !((MINUTES % TICKER_SVN_UP_MINUTES)); then
             svn up
+            TICKER_SVN_UP_MINUTES=$(jot -r 1 $TICKER_SVN_UP_MINUTES_MIN $TICKER_SVN_UP_MINUTES_MAX)
         fi
         if !((MINUTES % TICKER_SVN_COMMITS_MINUTES)); then
             GIT_NEXT_COMMIT=$(git rev-list --topo-order HEAD..$GIT_LAST_COMMIT | tail -1)
@@ -72,7 +77,10 @@ while true; do
                 GIT_DIFF_ARRAY_INDEX=$((GIT_DIFF_ARRAY_INDEX + 1))
             done
             svn commit -m "$GIT_NEXT_COMMIT_MSG"
+            TICKER_SVN_COMMITS_MINUTES=$(jot -r 1 $TICKER_SVN_COMMITS_MINUTES_MIN $TICKER_SVN_COMMITS_MINUTES_MAX)
         fi
     fi
     echo -e "[DEBUG]\tActive from $TICKER_MINUTES minute(s) and $TICKER_SECONDS second(s)"
+    echo "TICKER_SVN_COMMITS_MINUTES: $TICKER_SVN_COMMITS_MINUTES"
+    echo "TICKER_SVN_UP_MINUTES: $TICKER_SVN_UP_MINUTES"
 done
