@@ -29,6 +29,10 @@ GIT_LAST_COMMIT=$(git rev-list --reverse $GIT_BRANCH_NAME | tail -1)
 git checkout $GIT_FIRST_COMMIT
 cd ../../
 svn add --depth infinity $SVN_TMP_DIR
+svn rm --keep-local "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR/.git"
+if [ -f "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR/.gitignore" ]; then
+    svn rm --keep-local "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR/.gitignore"
+fi
 svn commit -m "first commit"
 cd "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
 echo -e "\n[INFO]\tTimer start !\n"
