@@ -60,17 +60,14 @@ while true; do
                     GIT_DIFF_FILE=$value
                     echo "- status: $GIT_DIFF_STATUS | file: $GIT_DIFF_FILE"
                     if [ "$GIT_DIFF_STATUS" == "A" ]; then
-                        echo "svn add --parents $GIT_DIFF_FILE"
-                        # svn add --parents "$GIT_DIFF_FILE"
+                        svn add --parents "$GIT_DIFF_FILE"
                     elif [ "$GIT_DIFF_STATUS" == "D" ]; then
-                        echo "svn rm $GIT_DIFF_FILE"
-                        # svn rm "$GIT_DIFF_FILE"
+                        svn rm "$GIT_DIFF_FILE"
                     fi
                 fi
                 GIT_DIFF_ARRAY_INDEX=$((GIT_DIFF_ARRAY_INDEX + 1))
             done
-            echo "-- commit: $GIT_NEXT_COMMIT_MSG"
-            # svn commit -m "$GIT_NEXT_COMMIT_MSG"
+            svn commit -m "$GIT_NEXT_COMMIT_MSG"
         fi
     fi
     echo -e "[DEBUG]\tActive from $TICKER_MINUTES minute(s) and $TICKER_SECONDS second(s)"
