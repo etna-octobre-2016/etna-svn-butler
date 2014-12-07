@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Ticker configuration
-TICKER_SVN_COMMITS_MINUTES=1
+TICKER_SVN_COMMITS_MINUTES=11
 TICKER_SVN_UP_MINUTES=32
 
 # SVN repo informations
