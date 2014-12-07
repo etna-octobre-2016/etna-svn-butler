@@ -20,12 +20,17 @@ if [ -d $SVN_TMP_DIR ]; then
     rm -rf $SVN_TMP_DIR
 fi
 echo -e "[DEBUG]\tCreates temporary directory"
-mkdir $SVN_TMP_DIR && cd $SVN_TMP_DIR
+mkdir -p "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
 echo -e "[INFO]\tInitializes Git repository cloning\n"
-git clone $GIT_REPOSITORY_URL $GIT_REPOSITORY_DIR && cd $GIT_REPOSITORY_DIR
+git clone $GIT_REPOSITORY_URL "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
+cd "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
 GIT_FIRST_COMMIT=$(git rev-list $GIT_BRANCH_NAME | tail -1)
 GIT_LAST_COMMIT=$(git rev-list --reverse $GIT_BRANCH_NAME | tail -1)
 git checkout $GIT_FIRST_COMMIT
+cd ../../
+svn add --depth infinity $SVN_TMP_DIR
+svn commit -m "first commit"
+cd "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
 echo -e "\n[INFO]\tTimer start !\n"
 TICKER_MINUTES=0
 TICKER_SECONDS=0
@@ -45,8 +50,27 @@ while true; do
         if !((MINUTES % TICKER_SVN_COMMITS_MINUTES)); then
             GIT_NEXT_COMMIT=$(git rev-list --topo-order HEAD..$GIT_LAST_COMMIT | tail -1)
             GIT_NEXT_COMMIT_MSG=$(git rev-list --topo-order --pretty=oneline --abbrev-commit HEAD..$GIT_LAST_COMMIT | tail -1 | cut -d" " -f 2-)
-            echo "$GIT_NEXT_COMMIT: $GIT_NEXT_COMMIT_MSG"
             git checkout $GIT_NEXT_COMMIT
+            GIT_DIFF_ARRAY=$(git diff --name-status HEAD^ HEAD)
+            GIT_DIFF_ARRAY_INDEX=0
+            for value in $GIT_DIFF_ARRAY; do
+                if !((GIT_DIFF_ARRAY_INDEX % 2)); then
+                    GIT_DIFF_STATUS=$value
+                else
+                    GIT_DIFF_FILE=$value
+                    echo "- status: $GIT_DIFF_STATUS | file: $GIT_DIFF_FILE"
+                    if [ "$GIT_DIFF_STATUS" == "A" ]; then
+                        echo "svn add --parents $GIT_DIFF_FILE"
+                        # svn add --parents "$GIT_DIFF_FILE"
+                    elif [ "$GIT_DIFF_STATUS" == "D" ]; then
+                        echo "svn rm $GIT_DIFF_FILE"
+                        # svn rm "$GIT_DIFF_FILE"
+                    fi
+                fi
+                GIT_DIFF_ARRAY_INDEX=$((GIT_DIFF_ARRAY_INDEX + 1))
+            done
+            echo "-- commit: $GIT_NEXT_COMMIT_MSG"
+            # svn commit -m "$GIT_NEXT_COMMIT_MSG"
         fi
     fi
     echo -e "[DEBUG]\tActive from $TICKER_MINUTES minute(s) and $TICKER_SECONDS second(s)"
