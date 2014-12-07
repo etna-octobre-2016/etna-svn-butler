@@ -5,7 +5,7 @@ TICKER_SVN_COMMITS_MINUTES=11
 TICKER_SVN_UP_MINUTES=32
 
 # SVN repo informations
-SVN_TMP_DIR="svn_butler_tmp"
+SVN_TMP_DIR="TMP"
 
 # Git repo informations
 GIT_BRANCH_NAME="master"
