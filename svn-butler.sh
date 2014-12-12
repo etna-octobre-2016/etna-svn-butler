@@ -24,6 +24,7 @@ mkdir -p "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
 echo -e "[INFO]\tInitializes Git repository cloning\n"
 git clone $GIT_REPOSITORY_URL "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
 cd "$SVN_TMP_DIR/$GIT_REPOSITORY_DIR"
+git checkout -b $GIT_BRANCH_NAME
 GIT_FIRST_COMMIT=$(git rev-list $GIT_BRANCH_NAME | tail -1)
 GIT_LAST_COMMIT=$(git rev-list --reverse $GIT_BRANCH_NAME | tail -1)
 git checkout $GIT_FIRST_COMMIT
