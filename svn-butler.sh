@@ -11,6 +11,7 @@ SVN_TMP_DIR="TMP"
 GIT_BRANCH_NAME="master"
 GIT_REPOSITORY_DIR="restful"
 GIT_REPOSITORY_URL="https://github.com/itadakimas/etna-2-restful.git"
+GIT_REMOTE_NAME="origin"
 
 # And...action !
 echo -e "\n#### SVN BUTLER [ON] ####\n"
