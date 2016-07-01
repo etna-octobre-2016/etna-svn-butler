@@ -8,6 +8,7 @@ Simple et personnalisable, il vous aidera obtenir les temps de logs que vous mé
 ## Comment ça marche ?
 
 Rien de plus simple, il suffit de suivre les étapes suivantes :
+
 1. Cloner le dépôt SVN de destination
 2. Mettre le fichier ```svn-butler.sh``` à la racine du dépôt SVN
 3. Changer les variables dans le fichier :
